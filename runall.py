@@ -23,10 +23,7 @@ from typing import List, Dict, Any
 PARALLEL = 4  # default parallel workers
 
 # Pipeline files
-MUTAUE_PIPELINE = "./pipeline_mutaue.json"
-ETAUMU_PIPELINE = "./pipeline_etaumu.json"
-MUTAUE_OFFSHELL_PIPELINE = "./pipeline_mutaue_Zoffshell.json"
-ETAUMU_OFFSHELL_PIPELINE = "./pipeline_etaumu_Zoffshell.json"
+EX_PIPELINE = "./pipeline_config_example.json"
 
 # Save path
 PARENT_DIR = Path("./normal_cuts")
@@ -122,50 +119,23 @@ def ensure_dirs():
 def build_jobs() -> List[Job]:
     jobs: List[Job] = []
 
-    # MuTauE signals
-    if CONFIG["mutaue_signal"]:
-        for mass in range(110, 146, 5):
-            inp = f"/work/project/physics/psriling/FCC/FCCee/ISR_HMuTauE_LFV/Hmass{mass}/ROOT/"
-            jobs.append(Job(input_path=inp, output_dir=MUTAUE_DIR, pipeline=MUTAUE_PIPELINE,
-                            sample_type="signal", channel="mutaue", name=f"signal_HMuTauE_LFV_{mass}"))
+    # # MuTauE signals
+    # if CONFIG["mutaue_signal"]:
+    #     for mass in range(110, 146, 5):
+    #         inp = f"/work/project/physics/psriling/FCC/FCCee/ISR_HMuTauE_LFV/Hmass{mass}/ROOT/"
+    #         jobs.append(Job(input_path=inp, output_dir=MUTAUE_DIR, pipeline=MUTAUE_PIPELINE,
+    #                         sample_type="signal", channel="mutaue", name=f"signal_HMuTauE_LFV_{mass}"))
         
-    if CONFIG["mutaue_background"]:
-        for bg in BACKGROUNDS:
-            jobs.append(Job(input_path=bg, output_dir=MUTAUE_DIR, pipeline=MUTAUE_PIPELINE,
-                            sample_type="background", channel="mutaue", name=BACKGROUNDS_NAMES[BACKGROUNDS.index(bg)]))
+    # if CONFIG["mutaue_background"]:
+    #     for bg in BACKGROUNDS:
+    #         jobs.append(Job(input_path=bg, output_dir=MUTAUE_DIR, pipeline=MUTAUE_PIPELINE,
+    #                         sample_type="background", channel="mutaue", name=BACKGROUNDS_NAMES[BACKGROUNDS.index(bg)]))
 
-    # Etaumu signals
-    if CONFIG["etaumu_signal"]:
-        for mass in range(110, 146, 5):
-            inp = f"/work/project/physics/psriling/FCC/FCCee/ISR_HETauMu_LFV/Hmass{mass}/ROOT/"
-            jobs.append(Job(input_path=inp, output_dir=ETAUMU_DIR, pipeline=ETAUMU_PIPELINE,
-                            sample_type="signal", channel="etaumu", name=f"signal_HETauMu_LFV_{mass}"))
-    if CONFIG["etaumu_background"]:
-        for bg in BACKGROUNDS:
-            jobs.append(Job(input_path=bg, output_dir=ETAUMU_DIR, pipeline=ETAUMU_PIPELINE,
-                            sample_type="background", channel="etaumu", name=BACKGROUNDS_NAMES[BACKGROUNDS.index(bg)]))
 
-    # MuTauE Offshell
-    if CONFIG["mutaue_offshell_signal"]:
-        for mass in range(150, 161, 5):
-            inp = f"/work/project/physics/psriling/FCC/FCCee/ISR_HMuTauE_LFV/Hmass{mass}/ROOT/"
-            jobs.append(Job(input_path=inp, output_dir=MUTAUE_OFFSHELL_DIR, pipeline=MUTAUE_OFFSHELL_PIPELINE,
-                            sample_type="signal", channel="mutaue_offshell", name=f"signal_HMuTauE_LFV_{mass}"))
-    if CONFIG["mutaue_offshell_background"]:
-        for bg in BACKGROUNDS:
-            jobs.append(Job(input_path=bg, output_dir=MUTAUE_OFFSHELL_DIR, pipeline=MUTAUE_OFFSHELL_PIPELINE,
-                            sample_type="background", channel="mutaue_offshell", name=BACKGROUNDS_NAMES[BACKGROUNDS.index(bg)]))
-
-    # Etaumu Offshell
-    if CONFIG["etaumu_offshell_signal"]:
-        for mass in range(150, 161, 5):
-            inp = f"/work/project/physics/psriling/FCC/FCCee/ISR_HETauMu_LFV/Hmass{mass}/ROOT/"
-            jobs.append(Job(input_path=inp, output_dir=ETAUMU_OFFSHELL_DIR, pipeline=ETAUMU_OFFSHELL_PIPELINE,
-                            sample_type="signal", channel="etaumu_offshell", name=f"signal_HETauMu_LFV_{mass}"))
-    if CONFIG["etaumu_offshell_background"]:
-        for bg in BACKGROUNDS:
-            jobs.append(Job(input_path=bg, output_dir=ETAUMU_OFFSHELL_DIR, pipeline=ETAUMU_OFFSHELL_PIPELINE,
-                            sample_type="background", channel="etaumu_offshell", name=BACKGROUNDS_NAMES[BACKGROUNDS.index(bg)]))
+    # +++++++++++++++++++++++++Pseudo Scalar Signals+++++++++++++++++++++++++++++
+    inp = "/work/project/escience/ruttho/Fcc-ee_PseudoScalarGammar/GEN/SAMPLES/signal_n5000"
+    jobs.append(Job(input_path=inp, output_dir=MUTAUE_DIR, pipeline=EX_PIPELINE,
+                    sample_type="signal", channel="tata", name=f"signal_PseudoScalarGammar_n5000"))
 
     return jobs
 
@@ -406,7 +376,7 @@ def main():
                     failures.append((job, -1))
         
         
-        pipeline_files = [MUTAUE_PIPELINE, ETAUMU_PIPELINE, MUTAUE_OFFSHELL_PIPELINE, ETAUMU_OFFSHELL_PIPELINE]
+        pipeline_files = [EX_PIPELINE]
         for pf in pipeline_files:
             dest = Path(args.output_dir) / Path(pf).name
             try:

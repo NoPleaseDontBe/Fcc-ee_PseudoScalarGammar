@@ -35,6 +35,7 @@ using namespace hlfv;
 #include "src/histman.cpp"
 #include "src/selections.cpp"
 #include "src/pipeline_config.cpp"
+#include "src/helper.cpp" 
 
 // ------------------------------------------------------------
 // Main analysis entry point (ROOT-callable)
@@ -137,6 +138,8 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
         cutflow[0]++;
 
         Meta mcur = meta;
+        FillMeta(evt, mcur, params); // compute derived quantities
+
         bool passAll = true;
         for (size_t si = 0; si < selections.size(); ++si) {
             Meta next = mcur;

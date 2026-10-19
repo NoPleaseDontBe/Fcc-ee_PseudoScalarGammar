@@ -16,20 +16,22 @@ std::unique_ptr<ISelection> makeSelectionByName(const std::string& name) {
 
     // Keep only 1st name
     if (key == "empty_selection") return std::make_unique<EmptySelection>();
-    if (key == "finalstate_nocut") return std::make_unique<FinalState_NoCut>();
-    if (key == "lepton_selection") return std::make_unique<LeptonSelection>();
-    if (key == "z_candidate_selection") return std::make_unique<ZCandidateSelection>();
-    if (key == "z_to_ll") return std::make_unique<ZToLLSelection>();
-    if (key == "h_to_mutau_e") return std::make_unique<HToMuTauESelection>();
-    if (key == "h_to_etau_mu") return std::make_unique<HToETauMuSelection>();
-    if (key == "met_e_dphi") return std::make_unique<METEDphiSelection>();
-    if (key == "met_mu_dphi") return std::make_unique<METMuDphiSelection>();
-    if (key == "recoil_mass_selection") return std::make_unique<RecoilMassSelection>();
-    if (key == "h_candidate_selection") return std::make_unique<HCandidateSelection>();
-    if (key == "h_to_mu_e") return std::make_unique<HToMuESelection>();
-    if (key == "pt_z_candidate_selection") return std::make_unique<PT_ZCandidateSelection>();
-    if (key == "modified_z_candidate_selection") return std::make_unique<Modified_ZCandidateSelection>();
-    if (key == "no_ptmin_z_candidate_selection") return std::make_unique<NoPTMin_ZCandidateSelection>();
+    if (key == "hemisphere_definition") return std::make_unique<HemisphereDefinition>();
+    // if (key == "finalstate_nocut") return std::make_unique<FinalState_NoCut>();
+    // if (key == "lepton_selection") return std::make_unique<LeptonSelection>();
+    // if (key == "z_candidate_selection") return std::make_unique<ZCandidateSelection>();
+    // if (key == "z_to_ll") return std::make_unique<ZToLLSelection>();
+    // if (key == "h_to_mutau_e") return std::make_unique<HToMuTauESelection>();
+    // if (key == "h_to_etau_mu") return std::make_unique<HToETauMuSelection>();
+    // if (key == "met_e_dphi") return std::make_unique<METEDphiSelection>();
+    // if (key == "met_mu_dphi") return std::make_unique<METMuDphiSelection>();
+    // if (key == "recoil_mass_selection") return std::make_unique<RecoilMassSelection>();
+    // if (key == "h_candidate_selection") return std::make_unique<HCandidateSelection>();
+    // if (key == "h_to_mu_e") return std::make_unique<HToMuESelection>();
+    // if (key == "pt_z_candidate_selection") return std::make_unique<PT_ZCandidateSelection>();
+    // if (key == "modified_z_candidate_selection") return std::make_unique<Modified_ZCandidateSelection>();
+    // if (key == "no_ptmin_z_candidate_selection") return std::make_unique<NoPTMin_ZCandidateSelection>();
+    
 
     return nullptr;
 }
