@@ -26,6 +26,22 @@ mkdir -p ANALYSIS/hist/
 echo "--- input samples ---"
 ls -R samples || true
 
+# Allow limiting events via flag, e.g.  sbatch slurm_analyze.slurm -n 1000
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -n| --max-events)
+      export MAX_EVENTS="$2"
+      echo "--- Limiting event processing to: $MAX_EVENTS events per sample ---"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+
 echo "--- run analysis (makecard/combine skipped) ---"
 python3 runall.py -o ANALYSIS --parallel 4 --skip-makecard --skip-sbatch
 

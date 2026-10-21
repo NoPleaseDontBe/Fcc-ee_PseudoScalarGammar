@@ -67,6 +67,7 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
     chain->SetBranchStatus("Muon*", 1);
     chain->SetBranchStatus("Electron*", 1);
     chain->SetBranchStatus("MissingET*", 1);
+    chain->SetBranchStatus("Photon*", 1);
     // Enable Event Number for debugging
     chain->SetBranchStatus("Event", 1);
 
@@ -123,22 +124,31 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
 
 
     // Event loop
-    const Long64_t nEntries = chain->GetEntries();
-    // Dynamic cutflow: index 0 = Initial, then one per selection
-    std::vector<Long64_t> cutflow(stepNames.size(), 0);
+    const Long64_t totalEntries = chain->GetEntries();
+    Long64_t nEntries = totalEntries;
 
+    // Check for MAX_EVENTS environment variable
+    const char* envMaxEvt = std::getenv("MAX_EVENTS");
+    if (envMaxEvt && std::strlen(envMaxEvt) > 0) {
+        Long64_t maxEvt = std::stoll(envMaxEvt);
+        if (maxEvt > 0 && maxEvt < totalEntries) {
+            nEntries = maxEvt;
+            printf("==> Limiting analysis to %lld / %lld events (from MAX_EVENTS)\n", nEntries, totalEntries);
+        }
+    }
+
+    std::vector<Long64_t> cutflow(stepNames.size(), 0);
     Event evt{delphes};
     Meta meta;
 
     for (Long64_t i = 0; i < nEntries; ++i) {
         delphes->GetEntry(i);
 
-        // Step 0: initial
-        hman.fill(0, evt, meta, 1.0);
-        cutflow[0]++;
-
         Meta mcur = meta;
         FillMeta(evt, mcur, params); // compute derived quantities
+        // Step 0: initial
+        hman.fill(0, evt, mcur, 1.0);
+        cutflow[0]++;
 
         bool passAll = true;
         for (size_t si = 0; si < selections.size(); ++si) {
