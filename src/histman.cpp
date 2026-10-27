@@ -35,11 +35,17 @@ void HistogramManager::fill(size_t stepIndex, const Event& evt, const Meta& meta
     const auto& step = stepNames_[stepIndex];
     // 1D
     for (const auto& v : variables1D_) {
-        double val = v.compute(evt, meta);
-        if (std::isnan(val)) continue; // skip unavailable values
         std::string hname = step + std::string("_") + v.name;
         auto it = hists1D_.find(hname);
-        if (it != hists1D_.end()) it->second->Fill(val, weight);
+        if (it == hists1D_.end()) continue;
+        if (v.values) {
+            for (double val : meta.*(v.values)) {
+                if (std::isfinite(val)) it->second->Fill(val, weight);
+            }
+        } else {
+            double val = v.compute(evt, meta);
+            if (std::isfinite(val)) it->second->Fill(val, weight);
+        }
     }
     // 2D
     for (const auto& v2 : variables2D_) {

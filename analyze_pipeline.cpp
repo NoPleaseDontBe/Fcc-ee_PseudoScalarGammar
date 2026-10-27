@@ -64,12 +64,28 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
     // Bind Delphes class and enable only needed branches
     Delphes* delphes = new Delphes(chain);
     chain->SetBranchStatus("*", 0);
-    chain->SetBranchStatus("Muon*", 1);
-    chain->SetBranchStatus("Electron*", 1);
-    chain->SetBranchStatus("MissingET*", 1);
-    chain->SetBranchStatus("Photon*", 1);
-    // Enable Event Number for debugging
-    chain->SetBranchStatus("Event", 1);
+    // Previous reconstructed-particle and debug branches (unused for this histogram).
+//     chain->SetBranchStatus("Muon*", 1);
+//     chain->SetBranchStatus("Electron*", 1);
+//     chain->SetBranchStatus("MissingET*", 1);
+//     chain->SetBranchStatus("Photon*", 1);
+//     // Enable Event Number for debugging
+//     chain->SetBranchStatus("Event", 1);
+//
+    chain->SetBranchStatus("Particle", 1);
+    for (const char* branch : {"Particle.PID", "Particle.Status", "Particle.M1", "Particle.Phi",
+                               "Particle.D1", "Particle.D2", "Particle_size", "Particle.Eta",
+                               "Particle.Px", "Particle.Py", "Particle.Pz", "Particle.E"}) {
+        chain->SetBranchStatus(branch, 1);
+    }
+
+    // Reconstructed multiplicities and azimuths for hemisphere definition.
+    for (const char* branch : {"Electron", "Electron_size", "Electron.Phi", "Electron.PT", "Electron.Eta", "Electron.Charge",
+                               "Muon", "Muon_size", "Muon.Phi", "Muon.PT", "Muon.Eta", "Muon.Charge",
+                               "Photon", "Photon_size", "Photon.Phi", "Photon.PT", "Photon.Eta", "Photon.E",
+                               "MissingET", "MissingET_size", "MissingET.Phi"}) {
+        chain->SetBranchStatus(branch, 1);
+    }
 
     // Load pipeline config (JSON). Fallback to defaults if missing.
     PipelineConfig cfg;
@@ -108,15 +124,8 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
     // Print all Parameters used (in loop)
     printf("==== Analysis Parameters ====\n");
     for (const auto& p : {
-        std::make_pair("lepton_pt_min", params.lepton_pt_min),
-        std::make_pair("z_mass", params.z_mass),
-        std::make_pair("zl_pt_min", params.zl_pt_min),
-        std::make_pair("z_mass_window_upper", params.z_mass_window_upper),
-        std::make_pair("z_mass_window_lower", params.z_mass_window_lower),
-        std::make_pair("mu_pt_min", params.mu_pt_min),
-        std::make_pair("e_pt_min", params.e_pt_min),
-        std::make_pair("max_dphi_e_met", params.max_dphi_e_met),
-        std::make_pair("max_dphi_mu_met", params.max_dphi_mu_met)
+        std::make_pair("hemisphere_dphi", params.hemisphere_dphi),
+
     }) {
         printf("%-20s : %g\n", p.first, p.second);
     }
@@ -168,23 +177,29 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
     }
     hman.writeAll(fout);
 
-    // Small cutflow summary as a TNamed or histogram
-    TH1F cutflowH("cutflow", "Cutflow;Step;Events", (int)cutflow.size(), 0.5, (double)cutflow.size()+0.5);
-    for (size_t i = 0; i < cutflow.size(); ++i) {
-        cutflowH.GetXaxis()->SetBinLabel((int)i+1, stepNames[i].c_str());
-        cutflowH.SetBinContent((int)i+1, cutflow[i]);
-    }
-    cutflowH.Write();
-
+    // Cutflow histogram disabled; counts are printed below.
+//     // Small cutflow summary as a TNamed or histogram
+//     TH1F cutflowH("cutflow", "Cutflow;Step;Events", (int)cutflow.size(), 0.5, (double)cutflow.size()+0.5);
+//     for (size_t i = 0; i < cutflow.size(); ++i) {
+//         cutflowH.GetXaxis()->SetBinLabel((int)i+1, stepNames[i].c_str());
+//         cutflowH.SetBinContent((int)i+1, cutflow[i]);
+//     }
+//     cutflowH.Write();
+//
     fout->Close();
     // for efficiency calculation
     int initial = cutflow[0];
     printf("\n==== Pipeline summary ====\n");
     printf("Total events:          %lld\n", nEntries);
+    int previousCount = initial;
+    int thisCount = initial;
     for (size_t i = 0; i < cutflow.size(); ++i) {
         // calculate efficiency
-        double efficiency = static_cast<double>(cutflow[i]) / initial;
-        printf("After %-30s %lld (Efficiency: %.6f%%)\n", stepNames[i].c_str(), cutflow[i], efficiency * 100);
+        thisCount = cutflow[i];
+        double efficiency = static_cast<double>(thisCount) / initial;
+        double localEfficiency = static_cast<double>(thisCount) / previousCount;
+        previousCount = thisCount;
+        printf("After %-30s %-10lld Global Efficiency: %10.6f%%   Local Efficiency: %10.6f%%\n", stepNames[i].c_str(), cutflow[i], efficiency * 100, localEfficiency * 100);
     }
     printf("Output written to: %s\n", outputPath);
     printf("===============================\n");

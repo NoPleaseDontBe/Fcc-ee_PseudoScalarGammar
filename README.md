@@ -31,3 +31,10 @@ The `Meta` struct is used to store intermediate information about the event that
 1) Define new variables in the `Meta` struct in `type.h` (e.g. `double deltaR_mu_e;`).
 2) In your selection class (e.g. `HToMuTauESelection`), calculate the desired variable and store it in the `Meta` struct (e.g. `meta.deltaR_mu_e = deltaR_mu_e;`).
 3) In subsequent selections in the pipeline, you can access this variable from the `Meta` struct (e.g. `double deltaR = meta.deltaR_mu_e;`).
+
+### Pseudo-scalar reconstruction pipeline
+
+`pipeline_config_taPl.json` runs `hemisphere_definition`, `photon_eligibility`,
+`lepton_eligibility`, `pion0_reconstruction`, then `SM_mass`. Its `parameters`
+object contains every threshold used by these cuts (GeV for energy, mass, and pT).
+

@@ -23,7 +23,7 @@ from typing import List, Dict, Any
 PARALLEL = 4  # default parallel workers
 
 # Pipeline files
-EX_PIPELINE = "./pipeline_config_example.json"
+EX_PIPELINE = "./pipeline_config_taPl.json"
 
 # Save path
 PARENT_DIR = Path("./normal_cuts")
@@ -86,8 +86,10 @@ class Job:
             base_name = Path(self.input_path).stem if self.name is None else self.name
             return self.output_dir / f"{base_name}.root"
         elif self.sample_type == "background":
-            idx = BACKGROUNDS.index(self.input_path)
-            bg_name = BACKGROUNDS_NAMES[idx]
+            bg_name = self.name
+            if bg_name is None:
+                idx = BACKGROUNDS.index(self.input_path)
+                bg_name = BACKGROUNDS_NAMES[idx]
             return self.output_dir / f"{self.sample_type}_{bg_name}.root"
         else:
             raise ValueError(f"Unknown sample_type: {self.sample_type}")
@@ -99,8 +101,10 @@ class Job:
             base_name = Path(self.input_path).stem if self.name is None else self.name
             return self.output_dir / f"{base_name}.log"
         elif self.sample_type == "background":
-            idx = BACKGROUNDS.index(self.input_path)
-            bg_name = BACKGROUNDS_NAMES[idx]
+            bg_name = self.name
+            if bg_name is None:
+                idx = BACKGROUNDS.index(self.input_path)
+                bg_name = BACKGROUNDS_NAMES[idx]
             return self.output_dir / f"{self.sample_type}_{bg_name}.log"
         else:
             raise ValueError(f"Unknown sample_type: {self.sample_type}")
@@ -133,9 +137,18 @@ def build_jobs() -> List[Job]:
 
 
     # +++++++++++++++++++++++++Pseudo Scalar Signals+++++++++++++++++++++++++++++
-    inp = "/work/project/escience/ruttho/Fcc-ee_PseudoScalarGammar/GEN/SAMPLES/signal_n5000"
-    jobs.append(Job(input_path=inp, output_dir=MUTAUE_DIR, pipeline=EX_PIPELINE,
-                    sample_type="signal", channel="tata", name=f"signal_PseudoScalarGammar_n5000"))
+    sample_dir = Path("/work/project/escience/ruttho/Fcc-ee_PseudoScalarGammar/GEN/SAMPLES/signal_n100k")
+    # Each sample has its own subdirectory. Keep one histogram output per input file.
+    for inp in sorted(sample_dir.rglob("*.root")):
+        jobs.append(Job(input_path=str(inp), output_dir=MUTAUE_DIR, pipeline=EX_PIPELINE,
+                        sample_type="signal", channel="tata", name=inp.stem))
+
+    # Pseudo-scalar background samples, with separate outputs from the signals.
+    if RUN_BACKGROUNDS:
+        background_dir = Path("/work/project/escience/ruttho/Fcc-ee_PseudoScalarGammar/GEN/SAMPLES/background_n20k")
+        for inp in sorted(background_dir.rglob("*.root")):
+            jobs.append(Job(input_path=str(inp), output_dir=MUTAUE_DIR, pipeline=EX_PIPELINE,
+                            sample_type="background", channel="tata", name=inp.stem))
 
     return jobs
 

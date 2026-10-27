@@ -6,7 +6,7 @@
 # ============================================================
 #SBATCH --qos=cu_hpc
 #SBATCH --partition=cpugpu
-#SBATCH --job-name=ZToMuE_analyze
+#SBATCH --job-name=Pl_ana
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
@@ -14,6 +14,7 @@
 #SBATCH --output=logs/slurm_analyze_%j.log
 
 set -e
+Begin_time=$(date +%s)
 echo "host: $(hostname)   start: $(date)"
 
 # ---- CMS / HEP software environment (REQUIRED for ROOT + Delphes classes) ----
@@ -42,7 +43,17 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-echo "--- run analysis (makecard/combine skipped) ---"
-python3 runall.py -o ANALYSIS --parallel 4 --skip-makecard --skip-sbatch
+# echo "--- run analysis (makecard/combine skipped) ---"
+# python3 runall.py -o ANALYSIS --parallel 4 --skip-makecard --skip-sbatch
 
+echo "--- run single-channel analysis (makecard/combine skipped) ---"
+# structure analyze_pipeline(input_root/dir, output_path, config_path)
+root 'analyze_pipeline.cpp("GEN/SAMPLES/signal_n100k/z_tata_taPe_tae_anttaSM/z_tata_taPe_tae_anttaSM.root", "ANALYSIS/test_hist/signal_01.root", "pipeline_config_taPl.json")'
+
+End_time=$(date +%s)
+Elapsed_time=$(($End_time - $Begin_time))
 echo "done -> ANALYSIS/hist/*.root   $(date)"
+printf 'Processing time: %02d:%02d:%02d\n' \
+  "$((Elapsed_time / 3600))" \
+  "$(((Elapsed_time % 3600) / 60))" \
+  "$((Elapsed_time % 60))"

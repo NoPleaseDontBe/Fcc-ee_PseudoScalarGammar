@@ -4,7 +4,38 @@
 
 namespace hlfv {
 
+// Helper function
+double delta_phi(double phi1, double phi2);
+TLorentzVector get_p4(const Event& evt, int idx, int flavor);
+void FillMeta(const Event& evt, Meta& meta, const Parameters&);
+
+
 // Concrete selections
+
+struct HemisphereDefinition : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct PhotonEligibility : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct LeptonEligibility : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct Pion0Reconstruction : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct SMMass : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
 
 struct EmptySelection : public ISelection {
     std::string name() const override;

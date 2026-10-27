@@ -21,6 +21,8 @@ public:
         std::string title;    // ROOT histogram title (can include axis labels "Title;X;Y")
         int nbins; double xmin; double xmax;
         VarFunc compute;      // returns value or NaN if unavailable
+        // Optional vector in Meta: fill once per object instead of once per event.
+        std::vector<double> Meta::* values = nullptr;
     };
 
     // 2D variable specification
