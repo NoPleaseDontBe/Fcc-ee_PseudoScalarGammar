@@ -19,24 +19,6 @@ std::unique_ptr<ISelection> makeSelectionByName(const std::string& name) {
     // Keep only 1st name
     // if (key == "empty_selection") return std::make_unique<EmptySelection>();
     if (key == "hemisphere_definition") return std::make_unique<HemisphereDefinition>();
-    // if (key == "photon_eligibility") return std::make_unique<PhotonEligibility>();
-    // if (key == "lepton_eligibility") return std::make_unique<LeptonEligibility>();
-    // if (key == "pion0_reconstruction") return std::make_unique<Pion0Reconstruction>();
-    // if (key == "sm_mass") return std::make_unique<SMMass>();
-    // if (key == "finalstate_nocut") return std::make_unique<FinalState_NoCut>();
-    // if (key == "lepton_selection") return std::make_unique<LeptonSelection>();
-    // if (key == "z_candidate_selection") return std::make_unique<ZCandidateSelection>();
-    // if (key == "z_to_ll") return std::make_unique<ZToLLSelection>();
-    // if (key == "h_to_mutau_e") return std::make_unique<HToMuTauESelection>();
-    // if (key == "h_to_etau_mu") return std::make_unique<HToETauMuSelection>();
-    // if (key == "met_e_dphi") return std::make_unique<METEDphiSelection>();
-    // if (key == "met_mu_dphi") return std::make_unique<METMuDphiSelection>();
-    // if (key == "recoil_mass_selection") return std::make_unique<RecoilMassSelection>();
-    // if (key == "h_candidate_selection") return std::make_unique<HCandidateSelection>();
-    // if (key == "h_to_mu_e") return std::make_unique<HToMuESelection>();
-    // if (key == "pt_z_candidate_selection") return std::make_unique<PT_ZCandidateSelection>();
-    // if (key == "modified_z_candidate_selection") return std::make_unique<Modified_ZCandidateSelection>();
-    // if (key == "no_ptmin_z_candidate_selection") return std::make_unique<NoPTMin_ZCandidateSelection>();
     
 
     return nullptr;
@@ -90,8 +72,8 @@ bool loadPipelineConfig(const std::string& filepath, PipelineConfig& out) {
                 }
             }
         };
+        // ---------------------------------Parameters---------------------------------
         parseParam("hemisphere_dphi", cfg.params.hemisphere_dphi);
-
     }
 
     // selections array
@@ -159,12 +141,59 @@ std::vector<HistogramManager::VarSpec> Variables::getDefault() {
     // ----------------------Reco Section----------------------
     vars.push_back({
         "MET_size", "Missing ET size;MET size;Events", 10, -0.5, 9.5,
-        [](const Event& evt, const Meta&) -> double { return evt.d ? (double)evt.d->MissingET_size : std::numeric_limits<double>::quiet_NaN(); }
+        [](const Event& evt, const Meta& meta) -> double { return evt.d ? (double)evt.d->MissingET_size : std::numeric_limits<double>::quiet_NaN(); }
+    });
+
+    vars.push_back({
+        "IsoPhoton_size", "Isolated Photon size;# of isolated Photons;Events", 10, -0.5, 9.5,
+        [](const Event& evt, const Meta& meta) -> double {
+            int count = 0;
+            for (size_t i = 0; i < meta.reco_size; ++i) {
+                if (meta.reco_flavour[i] == PHOTON && meta.IsoPass[i] == 1) {
+                    count++;
+                }
+            }
+            return static_cast<double>(count); 
+        }
+    });
+
+    vars.push_back({
+        "IsoElectron_size", "Isolated Electron size;# of isolated Electrons;Events", 10, -0.5, 9.5,
+        [](const Event& evt, const Meta& meta) -> double {
+            int count = 0;
+            for (size_t i = 0; i < meta.reco_size; ++i) {
+                if (meta.reco_flavour[i] == ELECTRON && meta.IsoPass[i] == 1) {
+                    count++;
+                }
+            }
+            return static_cast<double>(count); 
+        }
+    });
+
+    vars.push_back({
+        "IsoMuon_size", "Isolated Muon size;# of isolated Muons;Events", 10, -0.5, 9.5,
+        [](const Event& evt, const Meta& meta) -> double {
+            int count = 0;
+            for (size_t i = 0; i < meta.reco_size; ++i) {
+                if (meta.reco_flavour[i] == MUON && meta.IsoPass[i] == 1) {
+                    count++;
+                }
+            }
+            return static_cast<double>(count); 
+        }
     });
 
     vars.push_back({
         "Lepton_size", "Lepton size;# of leptons;Events", 10, -0.5, 9.5,
-        [](const Event& evt, const Meta& meta) -> double { return meta.lepton_size; }
+        [](const Event& evt, const Meta& meta) -> double {
+            int count = 0;
+            for (size_t i = 0; i < meta.reco_size; ++i) {
+                if ((meta.reco_flavour[i] == ELECTRON || meta.reco_flavour[i] == MUON) && meta.IsoPass[i] == 1) {
+                    count++;
+                }
+            }
+            return static_cast<double>(count); 
+        }
     });
 
     vars.push_back({

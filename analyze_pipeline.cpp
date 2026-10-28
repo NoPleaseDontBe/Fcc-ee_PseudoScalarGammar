@@ -72,7 +72,7 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
 //     // Enable Event Number for debugging
 //     chain->SetBranchStatus("Event", 1);
 //
-    chain->SetBranchStatus("Particle", 1);
+    // chain->SetBranchStatus("Particle", 1);
     for (const char* branch : {"Particle.PID", "Particle.Status", "Particle.M1", "Particle.Phi",
                                "Particle.D1", "Particle.D2", "Particle_size", "Particle.Eta",
                                "Particle.Px", "Particle.Py", "Particle.Pz", "Particle.E"}) {
@@ -84,6 +84,11 @@ void analyze_pipeline(const char* inputPath = "samples/HMuTauE_LFV_125.root",
                                "Muon", "Muon_size", "Muon.Phi", "Muon.PT", "Muon.Eta", "Muon.Charge",
                                "Photon", "Photon_size", "Photon.Phi", "Photon.PT", "Photon.Eta", "Photon.E",
                                "MissingET", "MissingET_size", "MissingET.Phi"}) {
+        chain->SetBranchStatus(branch, 1);
+    }
+    // EFlow branches for isolation.
+    for (const char* branch : { "ParticleFlowCandidate_size", "ParticleFlowCandidate.PT", "ParticleFlowCandidate.Eta", "ParticleFlowCandidate.Phi"
+                                }) {
         chain->SetBranchStatus(branch, 1);
     }
 

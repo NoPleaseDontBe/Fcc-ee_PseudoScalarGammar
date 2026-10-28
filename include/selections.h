@@ -111,5 +111,20 @@ struct HToMuESelection : public ISelection {
     std::string name() const override;
     bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
 };
+// ------------------------------New Project Selections------------------------------
+struct Hemisphere_01 : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct Hemisphere_02 : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
+
+struct Hemisphere_03 : public ISelection {
+    std::string name() const override;
+    bool apply(const Event& evt, Meta& meta, const Parameters& cfg) override;
+};
 
 } // namespace hlfv
